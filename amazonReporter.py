@@ -91,8 +91,11 @@ def getCost(url):								#MASTER FUNCTION WHICH SCRAPES THE CURRENT COST OF THE 
 	else:
 		price = (div.find('span',attrs={'class':'a-size-medium a-color-price priceBlockSalePriceString'}).string)
 
-	iPrice = price.split('.')
-	iPrice = iPrice[0].split('\xa0')  	#Removes rupiya symbol
+	print(price)
+	iPrice = str(price).split('.')
+	print(iPrice)
+	iPrice = iPrice[0].split('₹')  	#Removes rupiya symbol
+
 
 	#now remove commas
 	cost = int(removeComma(iPrice[1]))
@@ -106,20 +109,15 @@ def getCost(url):								#MASTER FUNCTION WHICH SCRAPES THE CURRENT COST OF THE 
 
 def main():
 	wishlist = [
-	'https://www.amazon.in/dp/B01N07NBLA/?coliid=I352IRSMR16O3R&colid=1PU3VQ3I9PNPC&psc=1&ref_=lv_ov_lig_dp_it',
-	'https://www.amazon.in/Rugged-Extra-Tough-Unbreakable-Braided/dp/B0789LZTCJ/ref=gbps_tit_s-5_9f8e_c45f72c9?smid=A14CZOWI0VEHLG&pf_rd_p=b4500f5f-e496-4b18-ab75-623b14149f8e&pf_rd_s=slot-5&pf_rd_t=701&pf_rd_i=gb_main&pf_rd_m=A1VBAL9TL5WCBF&pf_rd_r=8TGBFKPQM89YC82MJEVF',
-	'https://www.amazon.in/Nike-Basketball-University-White-Black-Numeric_10/dp/B07TLNDB7M/ref=sr_1_1?dchild=1&keywords=nike%2Bbasketball%2Bshoes%2Bred&qid=1606409004&sr=8-1&th=1&psc=1',
-	'https://www.amazon.in/NOC-Playing-Limited-Air-Cushion-Finish/dp/B0846LS4YH/ref=sr_1_1?keywords=nocs+green+deck&qid=1584618955&s=apparel&sr=8-1',
-	'https://www.amazon.in/Nike-Basketball-University-White-Black-Numeric_10/dp/B07TNS9VCW/ref=sr_1_1?dchild=1&keywords=nike%2Bbasketball%2Bshoes%2Bred&qid=1606409004&sr=8-1&th=1&psc=1',
-	'https://www.amazon.in/A400-Type-C-Cable-Meter-Black/dp/B077Z65HSD/ref=sr_1_3?crid=32FB6BVZO4LDA&keywords=boat+rugged+cable+type+c&qid=1584552066&s=electronics&smid=A14CZOWI0VEHLG&sprefix=boat+rugged+%2Celectronics%2C343&sr=1-3'
+	'https://www.amazon.in/Nike-Court-Legacy-Sneaker-9-CU4150-103/dp/B096QZC2Q2/ref=sr_1_2?dchild=1&keywords=nike%2Bsneakers&qid=1633373782&qsid=260-4279648-5963656&sr=8-2&sres=B08R4VGX5T%2CB096QZC2Q2%2CB00XWPWWYM%2CB07PL2QQGV%2CB00XQBRC74%2CB07BQXW4TG%2CB0946G5NT2%2CB00WQNO4U6%2CB08PKCS1Y9%2CB09CLBGQ2T%2CB08FGWCH7F%2CB07L6B6NHL%2CB011AC154Q%2CB0187Q593Q%2CB082R6S1PW%2CB0838JSL9B%2CB0178Q7CNG%2CB07C9J8MWY%2CB08R5LDBS1%2CB01IYK9Y86&srpt=SHOES&th=1&psc=1'
 	]
 	
 	with concurrent.futures.ThreadPoolExecutor() as executor:
 		executor.map(getCost,wishlist)
-'''
-	for url in wishlist:
-		getCost(url)
-'''
+
+	# for url in wishlist:
+	# 	getCost(url)
+
 proxyPool = proxyScrape.getProxy()
 
 if __name__ == '__main__':
