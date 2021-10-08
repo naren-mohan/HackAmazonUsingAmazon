@@ -35,14 +35,17 @@ def post(post_id):
 def create():
     if request.method == 'POST':
         title = request.form['title']
+        url = request.form['url']
         content = request.form['content']
-
+        print(url)
         if not title:
             flash('Title is required!')
+        if not url:
+            flash('URL is required!')
         else:
             conn = get_db_connection()
-            conn.execute('INSERT INTO posts (title, content) VALUES (?, ?)',
-                         (title, content))
+            conn.execute('INSERT INTO posts (title, url, content) VALUES (?, ?, ?)',
+                         (title, url, content))
             conn.commit()
             conn.close()
             return redirect(url_for('index'))
@@ -56,6 +59,7 @@ def edit(id):
 
     if request.method == 'POST':
         title = request.form['title']
+        url = request.form['url']
         content = request.form['content']
 
         if not title:
@@ -81,3 +85,17 @@ def delete(id):
     conn.close()
     flash('"{}" was successfully deleted!'.format(post['title']))
     return redirect(url_for('index'))
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/clear')
+def clear():
+    conn = get_db_connection()
+    conn.execute('DELETE FROM posts')
+    conn.commit()
+    conn.close()
+    flash('All the items were successfully deleted!')
+    return render_template('index.html')
