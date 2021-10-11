@@ -1,6 +1,18 @@
 import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
+import pandas as pd
+import sqlalchemy
+
+def get_df(table):
+    engine = sqlalchemy.create_engine('sqlite3:/database_db')
+    return pd.read_sql('SELECT * FROM'+ table +';', engine)
+
+
+def new_item(pid, title, url, notes):
+    df_items = get_df("items")
+    
+
 
 def get_db_connection():
     conn = sqlite3.connect('database.db')
@@ -9,7 +21,7 @@ def get_db_connection():
 
 def get_post(post_id):
     conn = get_db_connection()
-    post = conn.execute('SELECT * FROM posts WHERE id = ?',
+    post = conn.execute('SELECT * FROM items WHERE id = ?',
                         (post_id,)).fetchone()
     conn.close()
     if post is None:
@@ -22,9 +34,9 @@ app.config['SECRET_KEY'] = '1EBCaUip1DuoJYH03t97H22aPGeLMe1u'
 @app.route('/')
 def index():
     conn = get_db_connection()
-    posts = conn.execute('SELECT * FROM posts').fetchall()
+    items = conn.execute('SELECT * FROM items').fetchall()
     conn.close()
-    return render_template('index.html', posts=posts)
+    return render_template('index.html', items=items)
 
 @app.route('/<int:post_id>')
 def post(post_id):
@@ -36,16 +48,18 @@ def create():
     if request.method == 'POST':
         title = request.form['title']
         url = request.form['url']
-        content = request.form['content']
-        print(url)
+        notes = request.form['notes']
+        # print(url)
         if not title:
             flash('Title is required!')
         if not url:
             flash('URL is required!')
         else:
             conn = get_db_connection()
-            conn.execute('INSERT INTO posts (title, url, content) VALUES (?, ?, ?)',
-                         (title, url, content))
+            conn.execute('INSERT INTO items (title, url, notes) VALUES (?, ?, ?)',
+                         (title, url, notes))
+            pid = conn.execute('SELECT id FROM items WHERE title = (?)', title)
+            latestprice, lowprice = new_item(pid, title, url, notes)
             conn.commit()
             conn.close()
             return redirect(url_for('index'))
@@ -60,15 +74,15 @@ def edit(id):
     if request.method == 'POST':
         title = request.form['title']
         url = request.form['url']
-        content = request.form['content']
+        notes = request.form['notes']
 
         if not title:
             flash('Title is required!')
         else:
             conn = get_db_connection()
-            conn.execute('UPDATE posts SET title = ?, content = ?'
+            conn.execute('UPDATE items SET title = ?, notes = ?'
                          ' WHERE id = ?',
-                         (title, content, id))
+                         (title, notes, id))
             conn.commit()
             conn.close()
             return redirect(url_for('index'))
@@ -80,7 +94,7 @@ def edit(id):
 def delete(id):
     post = get_post(id)
     conn = get_db_connection()
-    conn.execute('DELETE FROM posts WHERE id = ?', (id,))
+    conn.execute('DELETE FROM items WHERE id = ?', (id,))
     conn.commit()
     conn.close()
     flash('"{}" was successfully deleted!'.format(post['title']))
@@ -94,7 +108,7 @@ def about():
 @app.route('/clear')
 def clear():
     conn = get_db_connection()
-    conn.execute('DELETE FROM posts')
+    conn.execute('DELETE FROM items')
     conn.commit()
     conn.close()
     flash('All the items were successfully deleted!')
