@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS posts;
 
 CREATE TABLE items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -7,6 +8,6 @@ CREATE TABLE items (
     url TEXT NOT NULL,
     latestprice REAL DEFAULT 0.0,
     lowprice REAL DEFAULT 0.0, 
-    notes TEXT NOT NULL
+    notes TEXT
 
 );
