@@ -11,7 +11,7 @@ def getProxy():
 				"Accept-Language": "en-US,en;q=0.5", 
 				"Accept-Encoding": "gzip, deflate"}
 		
-	r = requests.get(url, headers=headers, allow_redirects=False)
+	r = requests.get(url, headers=headers,  allow_redirects=False)
 
 	soup = BeautifulSoup(r.text,'html.parser')
 	div = soup.find('div',attrs={'class':'table-responsive'})
@@ -25,11 +25,11 @@ def getProxy():
 			port = getContent[i+1].text
 			proxy_list.append(str(proxy)+':'+str(port))
 
-	#print('Returning now')
+	#print(proxy_list)
 	return proxy_list[:10]
 
-
-
+if __name__ == "__main__":
+	getProxy()
 
 
 
