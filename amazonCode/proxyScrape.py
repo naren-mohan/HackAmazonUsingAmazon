@@ -4,14 +4,14 @@ import requests
 def getProxy():
 	url = 'https://www.sslproxies.org/'
 
-	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', 
-				"Upgrade-Insecure-Requests": "1",
-				"DNT": "1",	
-				"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", 
-				"Accept-Language": "en-US,en;q=0.5", 
-				"Accept-Encoding": "gzip, deflate"}
+	headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64;x64; rv:66.0) Gecko/20100101 Firefox/66.0", 
+							"Accept-Encoding":"gzip, deflate",     
+							"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", 
+							"DNT":"1",
+							"Connection":"close", 
+							"Upgrade-Insecure-Requests":"1"}
 		
-	r = requests.get(url, headers=headers,  allow_redirects=False)
+	r = requests.get(url,headers=headers)
 
 	soup = BeautifulSoup(r.text,'html.parser')
 	div = soup.find('div',attrs={'class':'table-responsive'})
@@ -25,11 +25,11 @@ def getProxy():
 			port = getContent[i+1].text
 			proxy_list.append(str(proxy)+':'+str(port))
 
-	#print(proxy_list)
+	#print('Returning now')
 	return proxy_list[:10]
 
-if __name__ == "__main__":
-	getProxy()
+
+
 
 
 

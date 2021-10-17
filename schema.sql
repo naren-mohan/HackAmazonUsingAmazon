@@ -1,0 +1,22 @@
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS items_large;
+
+CREATE TABLE items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    title TEXT NOT NULL,
+    url TEXT NOT NULL,
+    latestprice REAL DEFAULT 0.0,
+    lowprice REAL DEFAULT 0.0, 
+    notes TEXT
+
+);
+
+CREATE TABLE items_large(
+    ind INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER,
+    timestp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    url TEXT NOT NULL,
+    curr_price REAL,
+    FOREIGN KEY(id) REFERENCES items(id)
+);
