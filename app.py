@@ -3,16 +3,18 @@ from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 import pandas as pd
 import sqlalchemy
+import amazonReporter
+from apscheduler.schedulers.background import BackgroundScheduler
 
 def get_df(table):
-    engine = sqlalchemy.create_engine('sqlite3:/database_db')
-    return pd.read_sql('SELECT * FROM'+ table +';', engine)
+    engine = sqlalchemy.create_engine('sqlite:///database.db')
+    return pd.read_sql('SELECT * FROM '+ table +';', engine)
 
-
-def new_item(pid, title, url, notes):
-    df_items = get_df("items")
-    
-
+def new_item(url):
+    #df_items = get_df("items")
+    price = amazonReporter.get_cost(url)
+    print(price)
+    return (price, price)
 
 def get_db_connection():
     conn = sqlite3.connect('database.db')
@@ -28,8 +30,40 @@ def get_post(post_id):
         abort(404)
     return post
 
+def get_item_prices():
+    df_items = get_df("items")
+    item_prices = amazonReporter.get_prices_df(df_items)
+    return item_prices
+
+def update_prices(interval=False):
+    item_prices = get_item_prices()
+    conn = get_db_connection()
+    for item in item_prices:
+        low_price_temp = conn.execute('SELECT lowprice FROM items WHERE id = ?', 
+                                (item["id"], )).fetchone()[0]
+        if low_price_temp is None:
+            low_price_temp = -100
+        if item["cost"] == -1:
+            item["cost"] = low_price_temp
+
+        if interval:
+            conn.execute("INSERT INTO items_large (id, url, curr_price) VALUES \
+                        (?, ?, ?)", (item["id"], item["url"], item["cost"]))
+
+        if int(low_price_temp) > item["cost"]:
+            conn.execute('UPDATE items SET latestprice = ?, lowprice = ? \
+                            WHERE id = ?', (item["cost"], item["cost"], item["id"]))
+        else:
+            conn.execute('UPDATE items SET latestprice = ? \
+                            WHERE id = ?', (item["cost"], item["id"]))
+    conn.commit()
+    conn.close()
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '1EBCaUip1DuoJYH03t97H22aPGeLMe1u'
+
+sched = BackgroundScheduler(timezone='EST')
+sched.add_job(update_prices, 'interval', id='60_min_updater',args=[True], minutes=10)
+sched.start()
 
 @app.route('/')
 def index():
@@ -41,7 +75,7 @@ def index():
 @app.route('/<int:post_id>')
 def post(post_id):
     post = get_post(post_id)
-    return render_template('post.html', post = post)
+    return render_template('post.html', post=post)
 
 @app.route('/create', methods=('GET', 'POST'))
 def create():
@@ -56,10 +90,10 @@ def create():
             flash('URL is required!')
         else:
             conn = get_db_connection()
-            conn.execute('INSERT INTO items (title, url, notes) VALUES (?, ?, ?)',
-                         (title, url, notes))
-            pid = conn.execute('SELECT id FROM items WHERE title = (?)', title)
-            latestprice, lowprice = new_item(pid, title, url, notes)
+            latestprice, lowprice = new_item(url)
+            print(latestprice)
+            conn.execute('INSERT INTO items (title, url, notes, latestprice, lowprice) VALUES (?, ?, ?, ?, ?)', 
+                            (title, url, notes, latestprice, lowprice))
             conn.commit()
             conn.close()
             return redirect(url_for('index'))
@@ -113,3 +147,10 @@ def clear():
     conn.close()
     flash('All the items were successfully deleted!')
     return render_template('index.html')
+
+
+@app.route('/update_all')
+def update_all():
+    update_prices()
+    flash('Prices refreshed!')
+    return redirect('/')
