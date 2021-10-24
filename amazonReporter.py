@@ -3,6 +3,7 @@ import os
 from itertools import cycle
 from random import choice
 from time import perf_counter
+import time
 
 import numpy as np
 import requests
@@ -51,6 +52,20 @@ def get_shipping_price(div):						#FUNCTION TO GET THE SHIPPING PRICE
 def get_proxy():
 	global proxyPool
 	proxyPool = proxyScrape.getProxy()
+	proxyPool = cycle(proxyPool)
+
+	global header
+	header = [
+		"Mozilla/5.0 (Windows NT 10.0; Win64;x64; rv:66.0) Gecko/20100101 Firefox/66.0", 
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36",
+		'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15',
+		'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0',
+		'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
+		'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
+		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'
+	]
+
+	header = cycle(header)
 
 def get_cost(arg_url):						#MASTER FUNCTION WHICH SCRAPES THE CURRENT COST OF THE PRODUCT
 	if type(arg_url) == str:
@@ -58,16 +73,14 @@ def get_cost(arg_url):						#MASTER FUNCTION WHICH SCRAPES THE CURRENT COST OF T
 	else:
 		url = arg_url["url"]
 	#print(url)
-	headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64;x64; rv:66.0) Gecko/20100101 Firefox/66.0", 
+	headers = {"User-Agent": next(header), 
 						"Accept-Encoding":"gzip, deflate",     
-						"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", 
+						"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", 
 						"DNT":"1",
 						"Connection":"close", 
 						"Upgrade-Insecure-Requests":"1"}
 	payload = get_payload(url)
-	
-	get_proxy()
-	proxy = choice(proxyPool)
+	proxy = next(proxyPool)
 	print(f'Using Proxy {proxy}')
 	try:
 		r = requests.get(url,
@@ -95,7 +108,7 @@ def get_cost(arg_url):						#MASTER FUNCTION WHICH SCRAPES THE CURRENT COST OF T
 		ret_load = {"id": arg_url["id"],
 					"url": arg_url["url"],
 					"lowprice": arg_url["lowprice"],
-					"cost": -1}
+					"cost": None}
 		return ret_load
 
 	if (div.find('span',attrs={'class':'a-size-medium a-color-price priceBlockDealPriceString'}) != None):
@@ -107,7 +120,12 @@ def get_cost(arg_url):						#MASTER FUNCTION WHICH SCRAPES THE CURRENT COST OF T
 		price = (div.find('span',attrs={'class':'a-size-medium a-color-price priceBlockSalePriceString'}).string)
 
 	iPrice = str(price).split('.')
-	cents = float(iPrice[1]) * 0.01
+	try:
+		cents = float(iPrice[1]) * 0.01
+	except ValueError as e:		#one weird exception -- Should deal with this separately
+		iPrice = iPrice.split("- ")[1]
+		iPrice = str(price).split('.')
+		cents = float(iPrice[1]) * 0.01
 	iPrice = iPrice[0].split('$')  	#Removes rupiya symbol
 
 
@@ -128,15 +146,18 @@ def get_cost(arg_url):						#MASTER FUNCTION WHICH SCRAPES THE CURRENT COST OF T
 					"cost": cost}
 	return ret_load
 
-
 def get_prices_df(df_items):
-	with concurrent.futures.ThreadPoolExecutor() as executor:
-		ret_load = list(executor.map(get_cost, df_items.to_dict('records')))
+	get_proxy()
+	# with concurrent.futures.ThreadPoolExecutor() as executor:
+	# 	ret_load = list(executor.map(get_cost, df_items.to_dict('records')))
+	ret_load = []
+	for item in df_items.to_dict('records'):
+		ret_load.append(get_cost(item))
+		time.sleep(2)
+
+	
 	print(ret_load)
 	return ret_load
-	# get_proxy()
-	# return get_cost(url)
-
 
 #print(proxyPool)
 

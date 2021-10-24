@@ -41,25 +41,25 @@ def update_prices(interval=False):
     for item in item_prices:
         low_price_temp = conn.execute('SELECT lowprice FROM items WHERE id = ?', 
                                 (item["id"], )).fetchone()[0]
-        if low_price_temp is None:
-            low_price_temp = -100
-        if item["cost"] == -1:
-            item["cost"] = low_price_temp
 
         if interval:
             conn.execute("INSERT INTO items_large (id, url, curr_price) VALUES \
                         (?, ?, ?)", (item["id"], item["url"], item["cost"]))
-
-        if int(low_price_temp) > item["cost"]:
+        if item["cost"] is None or low_price_temp is None:
+            conn.execute('UPDATE items SET latestprice = ? \
+                            WHERE id = ?', (item["cost"], item["id"]))
+        elif int(low_price_temp) > item["cost"]:
             conn.execute('UPDATE items SET latestprice = ?, lowprice = ? \
                             WHERE id = ?', (item["cost"], item["cost"], item["id"]))
         else:
             conn.execute('UPDATE items SET latestprice = ? \
                             WHERE id = ?', (item["cost"], item["id"]))
+
     conn.commit()
     conn.close()
 
 app = Flask(__name__)
+app.secret_key = "YtDL5cCLjEvl(8>bC/|(jm`p<~.zE7"
 
 sched = BackgroundScheduler(timezone='EST')
 sched.add_job(update_prices, 'interval', id='60_min_updater',args=[True], minutes=10)
