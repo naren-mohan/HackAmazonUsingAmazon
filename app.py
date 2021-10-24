@@ -12,7 +12,7 @@ def get_df(table):
 
 def new_item(url):
     #df_items = get_df("items")
-    price = amazonReporter.get_cost(url)
+    price = amazonReporter.new_item(url)
     print(price)
     return (price, price)
 

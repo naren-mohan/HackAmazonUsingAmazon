@@ -67,6 +67,10 @@ def get_proxy():
 
 	header = cycle(header)
 
+def new_item(url):
+	get_proxy()
+	return get_cost(url)
+
 def get_cost(arg_url):						#MASTER FUNCTION WHICH SCRAPES THE CURRENT COST OF THE PRODUCT
 	if type(arg_url) == str:
 		url = arg_url
@@ -119,12 +123,12 @@ def get_cost(arg_url):						#MASTER FUNCTION WHICH SCRAPES THE CURRENT COST OF T
 	else:
 		price = (div.find('span',attrs={'class':'a-size-medium a-color-price priceBlockSalePriceString'}).string)
 
-	iPrice = str(price).split('.')
+	iPrice = str(price).split('.', maxsplit=1)
 	try:
 		cents = float(iPrice[1]) * 0.01
 	except ValueError as e:		#one weird exception -- Should deal with this separately
-		iPrice = iPrice.split("- ")[1]
-		iPrice = str(price).split('.')
+		iPrice = iPrice[1].split("- ")[1]
+		iPrice = str(iPrice).split('.')
 		cents = float(iPrice[1]) * 0.01
 	iPrice = iPrice[0].split('$')  	#Removes rupiya symbol
 
