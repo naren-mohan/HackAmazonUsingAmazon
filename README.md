@@ -1,7 +1,7 @@
 # Hack Amazon Using Amazon
 #### Started as a hobby project to track the prices of products listed on amazon.com
 
-Amazon is one of the top, if not, the top e-commerce platform on the internet. Millions of products are bought and sold everyday in this e-commerce platform. This project web scrapes the amazon.com efficiently using BeautifulSoup library to analyze the prices data. The name of the project is because it web scrapes amazon.com (hack amazon) and was hosted on free-tier aws ec2 instance (using amazon), excuse the click-baity title! :P 
+Amazon is one of the top, if not, the top e-commerce platform on the internet. Millions of products are bought and sold everyday in this e-commerce platform. This project web scrapes the amazon.com efficiently using BeautifulSoup library to analyze the prices data. The name of the project is because it web scrapes amazon.com (hack amazon) and was hosted on free-tier aws ec2 instance (using amazon), excuse the click-baity title! :stuck_out_tongue_winking_eye:
 
 ### Objectives
 * Track the prices of products
