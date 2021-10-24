@@ -62,7 +62,7 @@ app = Flask(__name__)
 app.secret_key = "YtDL5cCLjEvl(8>bC/|(jm`p<~.zE7"
 
 sched = BackgroundScheduler(timezone='EST')
-sched.add_job(update_prices, 'interval', id='60_min_updater',args=[True], minutes=10)
+sched.add_job(update_prices, 'interval', id='60_min_updater',args=[True], minutes=60)
 sched.start()
 
 @app.route('/')
