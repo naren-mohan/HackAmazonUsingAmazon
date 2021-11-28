@@ -1,10 +1,14 @@
 import sqlite3
-from flask import Flask, render_template, request, url_for, flash, redirect
+from flask import Flask, render_template, request, url_for, flash, redirect, Response
 from werkzeug.exceptions import abort
 import pandas as pd
 import sqlalchemy
 import amazonReporter
 from apscheduler.schedulers.background import BackgroundScheduler
+from matplotlib.figure import Figure
+import matplotlib.dates as mdates
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import io
 
 def get_df(table):
     engine = sqlalchemy.create_engine('sqlite:///database.db')
@@ -26,8 +30,11 @@ def get_post(post_id):
     post = conn.execute('SELECT * FROM items WHERE id = ?',
                         (post_id,)).fetchone()
     conn.close()
+
     if post is None:
         abort(404)
+        return (post, None)
+
     return post
 
 def get_item_prices():
@@ -75,7 +82,25 @@ def index():
 @app.route('/<int:post_id>')
 def post(post_id):
     post = get_post(post_id)
+    plot_response = get_plot(post_id)
     return render_template('post.html', post=post)
+
+@app.route('/plot/<int:post_id>.png')
+def get_plot(post_id):
+    df = get_df("items_large")
+    df_post_id = df[df["id"] == post_id]
+    pos_filt = df_post_id["curr_price"] > 0
+    prices = df_post_id[pos_filt].loc[:, ["timestp", "curr_price"]]
+
+    prices["timestp"] = prices["timestp"].astype('datetime64')
+
+    fig = Figure(figsize=(12, 8))
+    axis = fig.add_subplot(1, 1, 1)
+    axis.plot(prices.timestp, prices.curr_price, "-o")
+    fig.autofmt_xdate(bottom=0.2, rotation=30, ha='right', which='major')
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
 
 @app.route('/create', methods=('GET', 'POST'))
 def create():
