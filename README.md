@@ -12,13 +12,17 @@ Amazon is one of the top, if not, the top e-commerce platform on the internet. M
 * Webscrape amazon.com product URLs to get the price and shipping price
 * Collect the pricing data every hour and store in the sqlite database
 * Basic functional front end developed using Flask and Jinja templates to add/remove/edit products interested and also view pricing information
+* Matplotlib based plotting to see the price trend over date
+* Implemented multithreading to collect prices of various products (However, stopped it as it resulted in too aggressive scraping leading to amazon blocking the requests)
 
-### Requirements
-```
-pip3 install -r requirements.txt
-```
+### Screenshots
+
+![Home Page](Screenshots/Home.png)
+
+![Post 1](Screenshots/Post-1.png)
+
+![Post 2](Screenshots/Post-2.png)
 
 ### Further Implementations
-* Visualize the pricing trend in the frontend for each product
 * Scrape more features such as listing price, reviews from the amazon.com
-* Improve the front end.
+* Improve the front end
