@@ -9,11 +9,10 @@ Amazon is one of the top, if not, the top e-commerce platform on the internet. M
 * Identify the pricing trends with the dataset collected through this project
 
 ### Implementation
-* Webscrape amazon.com product URLs to get the price and shipping price
-* Collect the pricing data every hour and store in the sqlite database
+* Webscraped amazon.com product URLs to get the price and shipping price using Beautiful Soup library
+* Collecting the price data every hour using APscheduler and multithreading and store in the SQLite database
 * Basic functional front end developed using Flask and Jinja templates to add/remove/edit products interested and also view pricing information
-* Matplotlib based plotting to see the price trend over date
-* Implemented multithreading to collect prices of various products (However, stopped it as it resulted in too aggressive scraping leading to amazon blocking the requests)
+* Implemented plots of the prices of products to see the price trend over date using Matplotlib
 
 ### Screenshots
 
@@ -24,5 +23,4 @@ Amazon is one of the top, if not, the top e-commerce platform on the internet. M
 ![Post 2](Screenshots/Post2-2.png)
 
 ### Further Implementations
-* Scrape more features such as listing price, reviews from the amazon.com
-* Improve the front end
+* Scrape more features such as listing price, reviews from the amazon.com to perform further analysis
