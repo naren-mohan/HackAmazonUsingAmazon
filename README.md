@@ -16,11 +16,9 @@ Amazon is one of the top, if not, the top e-commerce platform on the internet. M
 
 ### Screenshots
 
-![Home Page](Screenshots/Home2.png)
+![Home Page](Screenshots/Home.png)
 
-![Post 1](Screenshots/Post2-1.png)
-
-![Post 2](Screenshots/Post2-2.png)
+![Post 1](Screenshots/Post.png)
 
 ### Further Implementations
 * Scrape more features such as listing price, reviews from the amazon.com to perform further analysis
