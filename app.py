@@ -8,6 +8,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import json
+import plotly.express as px
+import plotly 
+
 import io
 
 def get_df(table):
@@ -83,7 +87,7 @@ def index():
 def post(post_id):
     post = get_post(post_id)
     plot_response = get_plot(post_id)
-    return render_template('post.html', post=post)
+    return render_template('post.html', post=post, graphJSON=plot_response)
 
 @app.route('/plot/<int:post_id>.png')
 def get_plot(post_id):
@@ -91,16 +95,21 @@ def get_plot(post_id):
     df_post_id = df[df["id"] == post_id]
     pos_filt = df_post_id["curr_price"] > 0
     prices = df_post_id[pos_filt].loc[:, ["timestp", "curr_price"]]
-
     prices["timestp"] = prices["timestp"].astype('datetime64')
 
-    fig = Figure(figsize=(12, 8))
-    axis = fig.add_subplot(1, 1, 1)
-    axis.plot(prices.timestp, prices.curr_price, "-o")
-    fig.autofmt_xdate(bottom=0.2, rotation=30, ha='right', which='major')
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype='image/png')
+    fig = px.line(prices, x='timestp', y='curr_price', markers=True, 
+        labels=dict(timestp="Date", curr_price="Price($)"))
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return graphJSON
+
+    # fig = Figure(figsize=(12, 8))
+    # axis = fig.add_subplot(1, 1, 1)
+    # axis.plot(prices.timestp, prices.curr_price, "-o")
+    # fig.autofmt_xdate(bottom=0.2, rotation=30, ha='right', which='major')
+    # output = io.BytesIO()
+    # FigureCanvas(fig).print_png(output)
+    # return Response(output.getvalue(), mimetype='image/png')
 
 @app.route('/create', methods=('GET', 'POST'))
 def create():
