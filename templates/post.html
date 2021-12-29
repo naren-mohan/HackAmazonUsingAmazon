@@ -2,8 +2,22 @@
 
 {% block content %}
     <h2>{% block title %} {{ post['title'] }} {% endblock %}</h2>
-    <span class="badge badge-primary">{{ post['created'] }}</span>
-    <span class="badge badge-primary">{{ post['lowprice'] }}</span>
-    <span class="badge badge-primary">{{ post['latestprice'] }}</span>
-    <p>{{ post['notes'] }}</p>
+    <br>
+    <table style="width:100%" class="table table-bordered border-primary">
+        <tr class="table-dark">
+            <th>Date Added</th>
+            <th>Lowest Price</th>
+            <th>Recent Price</th>
+        </tr>
+        <tr class="table-light">
+            <td>{{ post['created'] }}</td>
+            <td>{{ post['lowprice'] }}</td>
+            <td>{{ post['latestprice'] }}</td>
+        </tr>
+    </table>
+
+    <br>
+    <h5>Price Range over time </h5>
+    <img src="/plot/{{ post['id'] }}.png", alt="{{ post['title']}}">
+
 {% endblock %}

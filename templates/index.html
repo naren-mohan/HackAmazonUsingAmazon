@@ -3,14 +3,31 @@
 {% block content %}
     <h1>{% block title %}Hack Amazon Using Amazon{% endblock %}</h1>
 
-    {% for post in items %}
-        <a href="{{ url_for('post', post_id=post['id']) }}">
-            <h2>{{ post['title'] }}</h2>
-        </a>
-        <span class="badge badge-primary">{{ post['created'] }}</span>
-	<a href="{{ url_for('edit', id=post['id']) }}">
-            <span class="badge badge-warning">Edit</span>
-        </a>
-        <hr>
-    {% endfor %}
+    <table class="table table-striped table-hover">
+        <tr class="table-dark">
+            <th><h3>Product</h3></th>
+            <th><h3>Added</h3></th>
+            <th><h3>Price</h3></th>
+            <th></th>
+        </tr>
+    
+    
+        {% for post in items %}
+
+        <tr>
+            <td>
+                <a href="{{ url_for('post', post_id=post['id']) }}">
+                    <h3>{{ post['title'] }}</h3>
+                </a>
+            </td>
+            <td><span class="">{{ post['created'] }}</span></td>
+            <td><span class="">{{ post['lowprice'] }}</span></td>
+            <td>
+            <a href="{{ url_for('edit', id=post['id']) }}">
+                    <span class="badge bg-warning text-dark">Edit</span>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endblock %}
